@@ -1,5 +1,3 @@
-import org.junit.Assert
-
 class Day1: Day<IntArray> {
     override fun parse(text: String): IntArray {
         return text.toCharArray().map { Character.digit(it, 10) }.toIntArray()
@@ -21,18 +19,4 @@ class Day1: Day<IntArray> {
         })
     }
 
-}
-
-fun main(args: Array<String>) {
-    val d = Day1()
-
-    val text = d.javaClass.classLoader.getResource("day1").readText().split('\n')
-    text.filter { it.contains('=') }.forEach {
-        val before = it.substring(0, it.indexOf('='))
-        val after = it.substring(it.indexOf('=') + 1).trim()
-        Assert.assertEquals("Mismatch for input " + before, after.toInt(), d.part1(d.parse(before)))
-    }
-    val parsed = d.parse(text[text.size - 1])
-    println(d.part1(parsed))
-    println(d.part2(parsed))
 }

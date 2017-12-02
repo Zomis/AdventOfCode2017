@@ -35,13 +35,3 @@ class Day2: Day<Array<IntArray>> {
     }
 
 }
-
-fun main(args: Array<String>) {
-    val d = Day2()
-
-    val text = Day::class.java.classLoader.getResource("day2").readText()
-    val parsed = d.parse(text)
-
-    println(d.part1(parsed))
-    println(d.part2(parsed))
-}
