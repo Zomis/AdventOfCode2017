@@ -1,34 +1,50 @@
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.TestFactory
 
 class DaysTest {
 
-    @Test
-    fun day1() {
-        val d = Day1()
-        val solve = { it: String -> d.part1(d.parse(it)) }
-        assertEquals(3, solve.invoke("1122"))
-        assertEquals(4, solve.invoke("1111"))
-        assertEquals(0, solve.invoke("1234"))
-        assertEquals(9, solve.invoke("91212129"))
+    @TestFactory
+    fun tests(): List<DynamicTest> {
+        return arrayOf(
+            testPartOne(Day1(), "1122", 3),
+            testPartOne(Day1(), "1111", 4),
+            testPartOne(Day1(), "1234", 0),
+            testPartOne(Day1(), "91212129", 9),
+
+            testPartOneOnly(Day2(), arrayOf(
+                    intArrayOf(5, 1, 9, 5),
+                    intArrayOf(7, 5, 3),
+                    intArrayOf(2, 4, 6, 8)
+            ), 18),
+            testPartTwoOnly(Day2(), arrayOf(
+                    intArrayOf(5, 9, 2, 8),
+                    intArrayOf(9, 4, 7, 3),
+                    intArrayOf(3, 8, 6, 5)
+            ), 9),
+            DynamicTest.dynamicTest("End", {})
+        ).toList()
     }
 
-    @Test
-    fun day2() {
-        val d = Day2()
-        val test = arrayOf(
-                intArrayOf(5, 1, 9, 5),
-                intArrayOf(7, 5, 3),
-                intArrayOf(2, 4, 6, 8)
-        )
-        assertEquals(18, d.part1(test))
+    private fun <T> testPartOneOnly(day: Day<T>, input: T, result: Any): DynamicTest {
+        val dayName = day.javaClass.name
+        return DynamicTest.dynamicTest("Test $dayName with input $input", {
+            assertEquals(result, day.part1(input), "Mismatch for $dayName with input $input")
+        })
+    }
 
-        val test2 = arrayOf(
-                intArrayOf(5, 9, 2, 8),
-                intArrayOf(9, 4, 7, 3),
-                intArrayOf(3, 8, 6, 5)
-        )
-        assertEquals(9, d.part2(test2))
+    private fun <T> testPartTwoOnly(day: Day<T>, input: T, result: Any): DynamicTest {
+        val dayName = day.javaClass.name
+        return DynamicTest.dynamicTest("Test $dayName with input $input", {
+            assertEquals(result, day.part2(input), "Mismatch for $dayName with input $input")
+        })
+    }
+
+    private fun <T> testPartOne(day: Day<T>, input: String, result: Any): DynamicTest {
+        val dayName = day.javaClass.name
+        return DynamicTest.dynamicTest("Test $dayName with input $input", {
+            assertEquals(result, day.part1(day.parse(input)), "Mismatch for $dayName with input $input")
+        })
     }
 
 }
