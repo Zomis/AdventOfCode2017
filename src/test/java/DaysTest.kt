@@ -1,6 +1,5 @@
-import org.junit.Assert
-import org.junit.Test
-import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class DaysTest {
 
@@ -22,14 +21,14 @@ class DaysTest {
                 intArrayOf(7, 5, 3),
                 intArrayOf(2, 4, 6, 8)
         )
-        Assert.assertEquals(18, d.part1(test))
+        assertEquals(18, d.part1(test))
 
         val test2 = arrayOf(
                 intArrayOf(5, 9, 2, 8),
                 intArrayOf(9, 4, 7, 3),
                 intArrayOf(3, 8, 6, 5)
         )
-        Assert.assertEquals(9, d.part2(test2))
+        assertEquals(9, d.part2(test2))
     }
 
 }

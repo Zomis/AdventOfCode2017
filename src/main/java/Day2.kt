@@ -1,4 +1,3 @@
-import org.junit.Assert
 import java.util.regex.Pattern
 
 class Day2: Day<Array<IntArray>> {
