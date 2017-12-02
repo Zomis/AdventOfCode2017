@@ -37,23 +37,10 @@ class Day2: Day<Array<IntArray>> {
 }
 
 fun main(args: Array<String>) {
-    val test = arrayOf(
-        intArrayOf(5, 1, 9, 5),
-        intArrayOf(7, 5, 3),
-        intArrayOf(2, 4, 6, 8)
-    )
     val d = Day2()
-    Assert.assertEquals(18, d.part1(test))
 
     val text = Day::class.java.classLoader.getResource("day2").readText()
     val parsed = d.parse(text)
-
-    val test2 = arrayOf(
-        intArrayOf(5, 9, 2, 8),
-        intArrayOf(9, 4, 7, 3),
-        intArrayOf(3, 8, 6, 5)
-    )
-    Assert.assertEquals(9, d.part2(test2))
 
     println(d.part1(parsed))
     println(d.part2(parsed))
