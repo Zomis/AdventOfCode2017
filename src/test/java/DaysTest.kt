@@ -38,6 +38,13 @@ class DaysTest {
             testPartOne(Day3(), "50", 7),
             testPartOne(Day3(), "1024", 31),
 
+            testPartTwo(Day3(), "140", 142),
+            testPartTwo(Day3(), "300", 304),
+            testPartTwo(Day3(), "747", 806),
+            testPartTwo(Day3(), "748", 806),
+            testPartTwo(Day3(), "60", 122),
+            testPartTwo(Day3(), "342", 351),
+
             DynamicTest.dynamicTest("End", {})
         ).toList()
     }
