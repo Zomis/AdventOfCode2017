@@ -12,10 +12,11 @@ fun main(args: Array<String>) {
         println("Load $day")
         val url = d.javaClass.classLoader.getResource("day$day")
         val input = url.readText()
-        val parsed = d.parse(input)
+        val parsed1 = d.parse(input)
+        println("Part1: " + d.part1(parsed1))
 
-        println("Part1: " + d.part1(parsed))
-        println("Part2: " + d.part2(parsed))
+        val parsed2 = d.parse(input)
+        println("Part2: " + d.part2(parsed2))
         println()
     }
 
