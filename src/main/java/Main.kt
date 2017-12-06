@@ -9,6 +9,7 @@ fun main(args: Array<String>) {
         } catch (ex: ClassNotFoundException) {
             return
         }
+        println("Load $day")
         val url = d.javaClass.classLoader.getResource("day$day")
         val input = url.readText()
         val parsed = d.parse(input)
