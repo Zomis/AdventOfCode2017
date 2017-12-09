@@ -68,17 +68,25 @@ class Day7: Day<Map<String, Day7.ProgramTree>> {
     }
 
     override fun part2(input: Map<String, ProgramTree>): Any {
-        val list = input.values.filter { !it.isBalanced(input) }
-        list.forEach({
-            println(it)
-            println(it.weightText(input))
-            it.children.forEach({ child ->
-                println(input[child]!!.weightText(input))
-            })
-        })
         val rootProgram = input[part1(input)]!!
-        rootProgram.printRecursive(input, 0)
-        return 0
+        var prog = rootProgram
+        var diff = 0
+        while (!prog.isBalanced(input)) {
+            val seenWeights = HashMap<Int, MutableList<ProgramTree>>()
+            for (child in prog.children) {
+                val subProgram = input[child]!!
+                val weight = subProgram.weightBalance(input)
+                seenWeights.putIfAbsent(weight, arrayListOf())
+                seenWeights[weight]!!.add(subProgram)
+            }
+            val mostPopularWeight = seenWeights.maxBy { it.value.size }
+            val incorrectWeight = seenWeights.minBy { it.value.size }
+            diff = mostPopularWeight!!.key - incorrectWeight!!.key
+            if (mostPopularWeight != incorrectWeight) {
+                prog = incorrectWeight.value[0]
+            }
+        }
+        return prog.weight + diff
     }
 
 }
