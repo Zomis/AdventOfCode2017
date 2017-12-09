@@ -37,7 +37,7 @@ class Day8: Day<List<Day8.Instruction>> {
     override fun part1(input: List<Instruction>): Any {
         val register = HashMap<String, Int>()
         input.forEach { it.process(register) }
-        return register.maxBy { it.value }!!
+        return register.maxBy { it.value }!!.value
     }
 
     override fun part2(input: List<Instruction>): Any {
