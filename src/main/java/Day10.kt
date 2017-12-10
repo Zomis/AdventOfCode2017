@@ -5,14 +5,21 @@ class Day10: Day<IntArray> {
 
     override fun part1(input: IntArray): Any {
         val array = (0..255).toMutableList()
-        var currentPosition = 0
-        var skip = 0
-        for (len in input) {
-            reverse(array, currentPosition, len)
+        val result = round(0, 0, array, input)
+        return result.values[0] * result.values[1]
+    }
+
+    class RoundResult(val currentPosition: Int, val skip: Int, val values: MutableList<Int>)
+
+    private fun round(startPosition: Int, skipStart: Int, values: MutableList<Int>, lengths: IntArray): RoundResult {
+        var currentPosition = startPosition
+        var skip = skipStart
+        for (len in lengths) {
+            reverse(values, currentPosition, len)
             currentPosition += len + skip
             skip++
         }
-        return array[0] * array[1]
+        return RoundResult(currentPosition, skip, values)
     }
 
     private fun reverse(array: MutableList<Int>, currentPosition: Int, len: Int) {
@@ -34,7 +41,21 @@ class Day10: Day<IntArray> {
     }
 
     override fun part2(input: IntArray): Any {
-        return 0
+        val str = input.map { it.toString() }.joinToString(",").toCharArray().map { it.toInt() } + arrayOf(17, 31, 73, 47, 23)
+        val values = (0..255).toMutableList()
+        var currentPosition = 0
+        var skip = 0
+        for (i in 1..64) {
+            val result = round(currentPosition, skip, values, str.toIntArray())
+            currentPosition = result.currentPosition
+            skip = result.skip
+        }
+
+        return (0 until 16).map {
+            val subList = values.subList(it * 16, it * 16 + 16)
+            val result = Integer.toString(subList.reduce({ a, b -> a xor b}), 16)
+            if (result.length == 1) "0" + result else result
+        }.joinToString("")
     }
 
 
