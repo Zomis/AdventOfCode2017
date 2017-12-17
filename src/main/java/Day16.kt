@@ -41,7 +41,15 @@ class Day16: Day<List<DanceMove>> {
     }
 
     override fun part2(input: List<DanceMove>): Any {
-        return 0
+        val range = 'a'..'p'
+        val list = range.map { it.toString() }.toMutableList()
+        for (i in 0 until 1_000_000_000) {
+            if (i % 10000 == 0) {
+                println("Running $i")
+            }
+            input.forEach { it.invoke(list) }
+        }
+        return list.joinToString("")
     }
 
 }
