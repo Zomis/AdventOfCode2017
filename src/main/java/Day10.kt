@@ -40,8 +40,8 @@ class Day10: Day<IntArray> {
         }
     }
 
-    override fun part2(input: IntArray): Any {
-        val str = input.map { it.toString() }.joinToString(",").toCharArray().map { it.toInt() } + arrayOf(17, 31, 73, 47, 23)
+    fun knotHash(input: String): String {
+        var str = input.toCharArray().map { it.toInt() } + arrayOf(17, 31, 73, 47, 23)
         val values = (0..255).toMutableList()
         var currentPosition = 0
         var skip = 0
@@ -58,5 +58,9 @@ class Day10: Day<IntArray> {
         }.joinToString("")
     }
 
+    override fun part2(input: IntArray): Any {
+        val str = input.map { it.toString() }.joinToString(",")
+        return knotHash(str)
+    }
 
 }
