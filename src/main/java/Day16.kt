@@ -43,11 +43,24 @@ class Day16: Day<List<DanceMove>> {
     override fun part2(input: List<DanceMove>): Any {
         val range = 'a'..'p'
         val list = range.map { it.toString() }.toMutableList()
-        for (i in 0 until 1_000_000_000) {
-            if (i % 10000 == 0) {
-                println("Running $i")
+        val original = list.joinToString("")
+        var timesLeft = 1_000_000_000
+        var firstOriginal = -1
+        while (timesLeft > 0) {
+            if (timesLeft % 10000 == 0) {
+                println("Running $timesLeft")
             }
+            timesLeft--
             input.forEach { it.invoke(list) }
+            if (list.joinToString("") == original) {
+                println("Original at $timesLeft")
+                if (firstOriginal == -1) {
+                    firstOriginal = timesLeft
+                } else {
+                    val diff = firstOriginal - timesLeft
+                    timesLeft %= diff
+                }
+            }
         }
         return list.joinToString("")
     }
