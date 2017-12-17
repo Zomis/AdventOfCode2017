@@ -1,3 +1,5 @@
+import java.util.*
+
 class Day17: Day<Int> {
     override fun parse(text: String): Int {
         return text.toInt()
@@ -15,7 +17,18 @@ class Day17: Day<Int> {
     }
 
     override fun part2(input: Int): Any {
-        return 0
+        var size = 1
+        var index = 0
+        var afterZero = 0
+        for (i in 1..50000000) {
+            index = (index + input) % size
+            size++
+            if (index == 0) {
+                afterZero = i
+            }
+            index++
+        }
+        return afterZero
     }
 
 }
