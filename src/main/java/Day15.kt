@@ -4,8 +4,17 @@ class Day15: Day<Pair<Int, Int>> {
         return Pair(arr[0], arr[1])
     }
 
-    fun next(input: Pair<Long, Long>): Pair<Long, Long> {
-        return Pair(input.first * 16807 % 2147483647, input.second * 48271 % 2147483647)
+    fun next(input: Pair<Long, Long>, generatorCondition: Pair<(Int) -> Boolean, (Int) -> Boolean>): Pair<Long, Long> {
+        var a = input.first
+        do {
+            a = a * 16807 % 2147483647
+        } while (!generatorCondition.first.invoke(a.toInt()))
+
+        var b = input.second
+        do {
+            b = b * 48271 % 2147483647
+        } while (!generatorCondition.second.invoke(b.toInt()))
+        return Pair(a, b)
     }
 
     private val matchAND = (1.shl(16) - 1).toLong()
@@ -18,10 +27,14 @@ class Day15: Day<Pair<Int, Int>> {
 
     override fun part1(input: Pair<Int, Int>): Any {
         val range = 0 until 40_000_000
+        return countMatches(input, range, Pair({ _ -> true }, { _ -> true }))
+    }
+
+    private fun countMatches(input: Pair<Int, Int>, range: IntRange, generatorCondition: Pair<(Int) -> Boolean, (Int) -> Boolean>): Any {
         var count = 0
         var values = Pair(input.first.toLong(), input.second.toLong())
         for (i in range) {
-            values = next(values)
+            values = next(values, generatorCondition)
             if (match(values)) {
                 count++
             }
@@ -30,7 +43,7 @@ class Day15: Day<Pair<Int, Int>> {
     }
 
     override fun part2(input: Pair<Int, Int>): Any {
-        return 0
+        return countMatches(input, 0 until 5_000_000, Pair({ a -> a % 4 == 0 }, { b -> b % 8 == 0 }))
     }
 
 }
