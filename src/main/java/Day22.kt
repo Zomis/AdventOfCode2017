@@ -3,13 +3,17 @@ class Day22: Day<Array<BooleanArray>> {
         return text.lines().map { it.toCharArray().map { it == '#' }.toBooleanArray() }.toTypedArray()
     }
 
+    enum class NodeState {
+        CLEAN, WEAKENED, INFECTED, FLAGGED
+    }
+
     override fun part1(input: Array<BooleanArray>): Any {
-        val map = mutableMapOf<Pair<Int, Int>, Boolean>()
+        val map = mutableMapOf<Pair<Int, Int>, NodeState>()
         val origoY = input.size / 2
         val origoX = input[origoY].size / 2
         input.forEachIndexed({y, it ->
             it.forEachIndexed({x, v ->
-                map[Pair(x - origoX, y - origoY)] = v
+                map[Pair(x - origoX, y - origoY)] = if (v) NodeState.INFECTED else NodeState.CLEAN
             })
         })
 
@@ -19,13 +23,13 @@ class Day22: Day<Array<BooleanArray>> {
         var count = 0
         for (i in 0 until 10000) {
             val pair = Pair(virusX, virusY)
-            if (map[pair] == true) {
+            if (map[pair] == NodeState.INFECTED) {
                 dir = dir.rotateRight()
-                map[pair] = false
+                map[pair] = NodeState.CLEAN
             } else {
                 dir = dir.rotateLeft()
                 count++
-                map[pair] = true
+                map[pair] = NodeState.INFECTED
             }
             virusX += dir.x
             virusY += dir.y
