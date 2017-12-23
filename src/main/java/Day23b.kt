@@ -17,22 +17,19 @@ fun main(args: Array<String>) {
         do {
             e = 2
             do {
-                g = d // {a=1, b=107900, c=124900, f=0, d=3, e=31317, g=-76583}, {a=1, b=107900, c=124900, f=0, d=3, e=31318, g=-76582}
-                g *= e
-                g -= b
-                if (g == 0) {
+                val eRange = 2..b
+
+                if (d * e == b) {
                     f = 0
                 }
-                e -= 1
-                g = e
-                g -= b
-            } while (g != 0) // jnz g -8 // goto line 12: set g d
-            d -= -1
+                e++
+            } while (e != b) // jnz g -8 // goto line 12: set g d
+            d++
             g = d
             g -= b
         } while (g != 0) // jnz g -13
         if (f == 0) {
-            h -= -1
+            h++
         }
         g = b
         g -= c
@@ -40,7 +37,7 @@ fun main(args: Array<String>) {
             println(h)
             return //     jnz 1 3 // Exit
         }
-        b -= -17
+        b += 17
     } while (true) // jnz 1 -23
 
 
