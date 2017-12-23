@@ -2,7 +2,7 @@ import java.util.*
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 
-inline fun MutableMap<String, Long>.numberOrMapValue(value: String): Long {
+fun MutableMap<String, Long>.numberOrMapValue(value: String): Long {
     val number = Regex("-?\\d+").matches(value)
     return if (number) value.toLong() else getOrElse(value, { 0 })
 }
@@ -18,8 +18,8 @@ class Day18: Day<List<Day18.Instruction18>> {
 
     override fun part1(input: List<Instruction18>): Any {
         val vals = mutableMapOf<String, Long>()
-        val prog = Program(0, input, vals, { instruction, values -> values[SOUND_VALUE] = values.numberOrMapValue(instruction.first); 1},
-        { instruction, values -> if (values.getOrElse(instruction.first, {0}) != 0.toLong()) values[instruction.first] = values.getOrElse(SOUND_VALUE, {0}); 1})
+        val prog = Program(0, input, vals, { instruction, program -> program.values[SOUND_VALUE] = program.values.numberOrMapValue(instruction.first); 1},
+        { instruction, program -> if (program.values.getOrElse(instruction.first, {0}) != 0.toLong()) program.values[instruction.first] = program.values.getOrElse(SOUND_VALUE, {0}); 1})
 
         while (prog.instruction in 0..input.size) {
             val result = prog.runStep()
@@ -32,8 +32,8 @@ class Day18: Day<List<Day18.Instruction18>> {
     }
 
     class Program(val progId: Int, val instructions: List<Instruction18>,
-            private val values: MutableMap<String, Long>, val sndAction: (Instruction18, MutableMap<String, Long>) -> Int,
-              val rcvAction: (Instruction18, MutableMap<String, Long>) -> Int) {
+            val values: MutableMap<String, Long>, val sndAction: (Instruction18, Program) -> Int,
+              val rcvAction: (Instruction18, Program) -> Int) {
         var instruction = 0
         var stopped = false
 
@@ -52,42 +52,79 @@ class Day18: Day<List<Day18.Instruction18>> {
             println("Program $progId Performs ${this.instruction}: $instruction at $values")
             when (instruction.type) {
                 "set" -> values[instruction.first] = values.numberOrMapValue(instruction.second)
-                "add" -> values[instruction.first] = values.getOrElse(instruction.first, {0}) + values.numberOrMapValue(instruction.second)
-                "mul" -> values[instruction.first] = values.getOrElse(instruction.first, {0}) * values.numberOrMapValue(instruction.second)
-                "mod" -> values[instruction.first] = values.getOrElse(instruction.first, {0}) % values.numberOrMapValue(instruction.second)
-                "rcv" -> return rcvAction(instruction, values)
-                "snd" -> return sndAction(instruction, values)
+                "add" -> {
+                    val old = values.getOrElse(instruction.first, {0})
+                    val b = values.numberOrMapValue(instruction.second)
+                    values[instruction.first] = old + b
+                    if (b > 0 && old + b < old) {
+                        throw IllegalArgumentException("Addition resulted in less: $old + $b: $instruction")
+                    }
+                }
+                "mul" -> {
+                    val old = values.getOrElse(instruction.first, {0})
+                    val b = values.numberOrMapValue(instruction.second)
+                    values[instruction.first] = old * b
+                    if (b > 0 && values[instruction.first]!! < old) {
+                        throw IllegalArgumentException("Multiply resulted in less: $old * $b: $instruction")
+                    }
+                }
+                "mod" -> {
+                    val a = values.getOrElse(instruction.first, {0})
+                    val b = values.numberOrMapValue(instruction.second)
+                    if (a < 0) {
+                        throw IllegalArgumentException("Modulo negative value: $a % $b: $instruction")
+                    }
+                    values[instruction.first] = a % b
+                }
+                "rcv" -> return rcvAction(instruction, this)
+                "snd" -> return sndAction(instruction, this)
                 "jgz" -> {
-                    if (values[instruction.first] ?: 0 > 0) {
+                    if (values.numberOrMapValue(instruction.first) > 0) { // XXXXXXX suspicious. Why is `0.toLong()` not needed?
                         val value: Long = values.numberOrMapValue(instruction.second)
                         // println("Jump $value")
                         return value.toInt()
                     }
                 }
+                "jnz" -> { // Day23
+                    if (values.numberOrMapValue(instruction.first) != 0.toLong()) {
+                        val value: Long = values.numberOrMapValue(instruction.second)
+                        // println("Jump $value")
+                        return value.toInt()
+                    }
+                }
+                "sub" -> { // Day23
+                    val a = values.getOrElse(instruction.first, {0})
+                    val b = values.numberOrMapValue(instruction.second)
+                    values[instruction.first] = a - b
+                }
+                else -> throw IllegalArgumentException("Unknown instruction: $instruction")
             }
             return 1
         }
     }
 
-    private fun snd(queue: BlockingQueue<Long>): (Instruction18, MutableMap<String, Long>) -> Int {
-        return { instruction, values -> queue.put(values.numberOrMapValue(instruction.first)); 1 }
+    private fun snd(queue: BlockingQueue<Long>): (Instruction18, Program) -> Int {
+        return { instruction, program ->
+            val value = program.values.numberOrMapValue(instruction.first)
+            println("${program.progId} sends $instruction : $value")
+            queue.add(value)
+            1
+        }
     }
 
-    private fun rcv(queue: BlockingQueue<Long>, programs: List<Program>, thisIndex: Int): (Instruction18, MutableMap<String, Long>) -> Int {
-        return lit@ { instruction, values ->
-
-            val thisProgram  = programs[thisIndex]
+    private fun rcv(queue: BlockingQueue<Long>): (Instruction18, Program) -> Int {
+        return lit@ { instruction, program ->
             if (queue.isEmpty()) {
-                if (!thisProgram.stopped) {
-                    println("Stopping $thisIndex")
+                if (!program.stopped) {
+                    println("Stopping ${program.progId}")
                 }
-                thisProgram.stopped = true
+                program.stopped = true
                 return@lit 0
             }
-            thisProgram.stopped = false
+            program.stopped = false
             val taken = queue.take()
-            println("Resuming $thisIndex Queue size is ${queue.size}")
-            values[instruction.first] = taken
+            println("Resuming ${program.progId} Value taken is $taken")
+            program.values[instruction.first] = taken
             1
         }
     }
@@ -95,22 +132,30 @@ class Day18: Day<List<Day18.Instruction18>> {
     override fun part2(input: List<Instruction18>): Any {
         val queue1 = LinkedBlockingQueue<Long>()
         val queue2 = LinkedBlockingQueue<Long>()
-        val programs = mutableListOf<Program>()
-        val prog1 = Program(0, input, mutableMapOf(Pair("p", 0.toLong())), snd(queue2), rcv(queue1, programs, 0))
-        val prog2 = Program(1, input, mutableMapOf(Pair("p", 1.toLong())), snd(queue1), rcv(queue2, programs, 1))
-        programs.add(prog1)
-        programs.add(prog2)
+        val prog1 = Program(0, input, mutableMapOf(Pair("p", 0.toLong())), snd(queue2), rcv(queue1))
+        val prog2 = Program(1, input, mutableMapOf(Pair("p", 1.toLong())), snd(queue1), rcv(queue2))
 
         var count = 0
         val sc = Scanner(System.`in`)
-        while (!prog1.stopped || !prog2.stopped) {
-            prog1.runStep()
-            val inst = prog2.runStep()
-            if (inst.first?.type == "snd") {
-                count++
-                println("Count is now $count")
-                sc.nextLine()
-            }
+        while (count == 0 || queue1.isNotEmpty() || queue2.isNotEmpty()) {
+            do {
+                prog1.runStep()
+            } while (!prog1.stopped)
+
+            //sc.nextLine()
+            do {
+                val inst = prog2.runStep()
+                if (inst.first?.type == "snd") {
+                    count++
+                    println("Count is now $count")
+                    if (count >= 200000) {
+                        throw IllegalStateException("Count is too high! Something is wrong!")
+                    }
+                    //sc.nextLine()
+                }
+            } while (!prog2.stopped)
+            println()
+            println("Queue sizes is ${queue1.size} and ${queue2.size}")
         }
         return count
     }
