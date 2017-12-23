@@ -44,6 +44,10 @@ class Day22: Day<Array<BooleanArray>> {
     }
 
     override fun part1(input: Array<BooleanArray>): Any {
+        return run(initMap(input), ::rotate1, ::stateChange1)
+    }
+
+    private fun initMap(input: Array<BooleanArray>): MutableMap<Pair<Int, Int>, NodeState> {
         val map = mutableMapOf<Pair<Int, Int>, NodeState>()
         val origoY = input.size / 2
         val origoX = input[origoY].size / 2
@@ -52,8 +56,7 @@ class Day22: Day<Array<BooleanArray>> {
                 map[Pair(x - origoX, y - origoY)] = if (v) NodeState.INFECTED else NodeState.CLEAN
             })
         })
-
-        return run(map, ::rotate1, ::stateChange1)
+        return map
     }
 
     override fun part2(input: Array<BooleanArray>): Any {
