@@ -46,6 +46,7 @@ class DaysTest {
             testPartTwo(Day3(), "342", 351),
 
             testPartOne(Day4(), "aa bb cc dd ee\naa bb cc dd aa\naa bb cc dd aaa", 2),
+            testPartOne(Day22(), "..#\n#..\n...", 5587),
             testPartTwoOnly(Day5(), intArrayOf(0, 3, 0, 1, -3), 10),
                 DynamicTest.dynamicTest("Day 11 steps", { assertEquals(13, Day11().path(20, 6)) }),
                 DynamicTest.dynamicTest("Day 11 steps", { assertEquals(26, Day11().path(40, 12)) }),
