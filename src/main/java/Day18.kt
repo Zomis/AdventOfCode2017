@@ -79,7 +79,7 @@ class Day18: Day<List<Day18.Instruction18>> {
                 "rcv" -> return rcvAction(instruction, this)
                 "snd" -> return sndAction(instruction, this)
                 "jgz" -> {
-                    if (values.numberOrMapValue(instruction.first) > 0) { // XXXXXXX suspicious. Why is `0.toLong()` not needed?
+                    if (values.numberOrMapValue(instruction.first) > 0.toLong()) {
                         val value: Long = values.numberOrMapValue(instruction.second)
                         // println("Jump $value")
                         return value.toInt()
