@@ -23,12 +23,30 @@ class Day22: Day<Array<BooleanArray>> {
         }
     }
 
-    fun run(map: MutableMap<Pair<Int, Int>, NodeState>, rotate: (NodeState) -> (Dir4) -> Dir4, stateChange: (NodeState) -> NodeState): Int {
+    fun rotate2(state: NodeState): (Dir4) -> Dir4 {
+        return when (state) {
+            NodeState.CLEAN -> Dir4::rotateLeft
+            NodeState.WEAKENED -> { d -> d }
+            NodeState.INFECTED -> Dir4::rotateRight
+            NodeState.FLAGGED -> Dir4::opposite
+        }
+    }
+
+    fun stateChange2(state: NodeState): NodeState {
+        return when (state) {
+            NodeState.CLEAN -> NodeState.WEAKENED
+            NodeState.WEAKENED -> NodeState.INFECTED
+            NodeState.INFECTED -> NodeState.FLAGGED
+            NodeState.FLAGGED -> NodeState.CLEAN
+        }
+    }
+
+    fun run(times: Int, map: MutableMap<Pair<Int, Int>, NodeState>, rotate: (NodeState) -> (Dir4) -> Dir4, stateChange: (NodeState) -> NodeState): Int {
         var virusX = 0
         var virusY = 0
         var dir = Dir4.UP
         var count = 0
-        for (i in 0 until 10000) {
+        for (i in 0 until times) {
             val pair = Pair(virusX, virusY)
             val oldState = map[pair] ?: NodeState.CLEAN
             dir = rotate(oldState)(dir)
@@ -44,7 +62,7 @@ class Day22: Day<Array<BooleanArray>> {
     }
 
     override fun part1(input: Array<BooleanArray>): Any {
-        return run(initMap(input), ::rotate1, ::stateChange1)
+        return run(10_000, initMap(input), ::rotate1, ::stateChange1)
     }
 
     private fun initMap(input: Array<BooleanArray>): MutableMap<Pair<Int, Int>, NodeState> {
@@ -60,7 +78,7 @@ class Day22: Day<Array<BooleanArray>> {
     }
 
     override fun part2(input: Array<BooleanArray>): Any {
-        return 0
+        return run(10_000_000, initMap(input), ::rotate2, ::stateChange2)
     }
 
 }
