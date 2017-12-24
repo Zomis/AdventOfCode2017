@@ -17,7 +17,38 @@ class Day23: Day<List<Day18.Instruction18>> {
     }
 
     override fun part2(input: List<Day18.Instruction18>): Any {
-        return 0
+        var b = 79
+        var c = b
+        b *= 100
+        b -= -100000
+        c = b
+        c -= -17000
+        var f = 1
+        var g = 0
+        var d = 0
+        var h = 0
+        do {
+            f = 1
+            d = 2
+            do {
+                if (b % d == 0) {
+                    f = 0
+                }
+                d++
+                g = d
+                g -= b
+            } while (g != 0) // jnz g -13
+            if (f == 0) {
+                h++
+            }
+            g = b
+            g -= c
+            if (g == 0) {
+                println(h)
+                return h //     jnz 1 3 // Exit
+            }
+            b += 17
+        } while (true) // jnz 1 -23
     }
 
 }
