@@ -1,5 +1,5 @@
 fun Array<BooleanArray>.strRep(): String {
-    return map { it.map { if (it) '#' else '_' }.joinToString("") }.joinToString("/")
+    return map { it.map { if (it) '#' else '.' }.joinToString("") }.joinToString("/")
 }
 
 fun Array<BooleanArray>.countOn(): Int {
