@@ -44,7 +44,6 @@ class Day23: Day<List<Day18.Instruction18>> {
             g = b
             g -= c
             if (g == 0) {
-                println(h)
                 return h //     jnz 1 3 // Exit
             }
             b += 17

@@ -19,15 +19,12 @@ class Day3: Day<Int> {
         while (number > input) {
             number -= (layer - 1)
             quadrant++
-            println("Step down to " + number)
         }
         if (quadrant % 2 == 1) {
             stepsAway /= 2
             val diff = Math.abs(number - input)
-            println("Special num $number input $input layer $layer x $x y $y quad $quadrant stepsAway $stepsAway diff $diff")
             return stepsAway + diff
         }
-        println("Result num $number input $input layer $layer x $x y $y quad $quadrant stepsAway $stepsAway")
 
         return stepsAway - Math.abs(number - input)
     }

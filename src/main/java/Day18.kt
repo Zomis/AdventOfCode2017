@@ -49,7 +49,6 @@ class Day18: Day<List<Day18.Instruction18>> {
         }
 
         private fun perform(values: MutableMap<String, Long>, instruction: Instruction18): Int {
-            println("Program $progId Performs ${this.instruction}: $instruction at $values")
             when (instruction.type) {
                 "set" -> values[instruction.first] = values.numberOrMapValue(instruction.second)
                 "add" -> {
@@ -106,7 +105,6 @@ class Day18: Day<List<Day18.Instruction18>> {
     private fun snd(queue: BlockingQueue<Long>): (Instruction18, Program) -> Int {
         return { instruction, program ->
             val value = program.values.numberOrMapValue(instruction.first)
-            println("${program.progId} sends $instruction : $value")
             queue.add(value)
             1
         }
@@ -116,14 +114,13 @@ class Day18: Day<List<Day18.Instruction18>> {
         return lit@ { instruction, program ->
             if (queue.isEmpty()) {
                 if (!program.stopped) {
-                    println("Stopping ${program.progId}")
+//                    println("Stopping ${program.progId}")
                 }
                 program.stopped = true
                 return@lit 0
             }
             program.stopped = false
             val taken = queue.take()
-            println("Resuming ${program.progId} Value taken is $taken")
             program.values[instruction.first] = taken
             1
         }
@@ -136,26 +133,20 @@ class Day18: Day<List<Day18.Instruction18>> {
         val prog2 = Program(1, input, mutableMapOf(Pair("p", 1.toLong())), snd(queue1), rcv(queue2))
 
         var count = 0
-        val sc = Scanner(System.`in`)
         while (count == 0 || queue1.isNotEmpty() || queue2.isNotEmpty()) {
             do {
                 prog1.runStep()
             } while (!prog1.stopped)
 
-            //sc.nextLine()
             do {
                 val inst = prog2.runStep()
                 if (inst.first?.type == "snd") {
                     count++
-                    println("Count is now $count")
                     if (count >= 200000) {
                         throw IllegalStateException("Count is too high! Something is wrong!")
                     }
-                    //sc.nextLine()
                 }
             } while (!prog2.stopped)
-            println()
-            println("Queue sizes is ${queue1.size} and ${queue2.size}")
         }
         return count
     }

@@ -47,13 +47,9 @@ class Day16: Day<List<DanceMove>> {
         var timesLeft = 1_000_000_000
         var firstOriginal = -1
         while (timesLeft > 0) {
-            if (timesLeft % 10000 == 0) {
-                println("Running $timesLeft")
-            }
             timesLeft--
             input.forEach { it.invoke(list) }
             if (list.joinToString("") == original) {
-                println("Original at $timesLeft")
                 if (firstOriginal == -1) {
                     firstOriginal = timesLeft
                 } else {
