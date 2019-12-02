@@ -1,0 +1,16 @@
+{
+  "name": "zomis-advent-of-code-2019",
+  "version": "1.0.0",
+  "description": "Advent of Code 2019 in TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "test": "test"
+  },
+  "author": "Zomis",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^12.12.14",
+    "typescript": "^3.7.2"
+  }
+}
