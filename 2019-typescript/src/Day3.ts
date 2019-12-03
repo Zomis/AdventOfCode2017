@@ -7,6 +7,10 @@ class Point {
   manhattan(): number {
     return Math.abs(this.x) + Math.abs(this.y);
   }
+
+  manhattanDistance(p: Point): number {
+    return Math.abs(this.x - p.x) + Math.abs(this.y - p.y);
+  }
 }
 
 class Range {
@@ -20,6 +24,10 @@ class Range {
   inRange(value: number): boolean {
     return value >= this.min && value <= this.max;
   }
+}
+
+class Intersection {
+  constructor(public point: Point, public a: DirectionLength, public b: DirectionLength, public stepA: number, public stepB: number) {}
 }
 
 class DirectionLength {
@@ -50,7 +58,7 @@ class DirectionLength {
     return new Range(this.startingPoint.y, this.endPoint().y);
   }
 
-  intersection(other: DirectionLength): Point | undefined {
+  intersection(other: DirectionLength): Intersection | undefined {
     let endPoint = this.endPoint();
     let otherEnd = other.endPoint();
     if (this.direction === Direction.WEST || this.direction === Direction.EAST) {
@@ -58,7 +66,8 @@ class DirectionLength {
         let y = other.yRange().inRange(this.startingPoint.y);
         let x = this.xRange().inRange(other.startingPoint.x);
         if (x && y) {
-          return new Point(other.startingPoint.x, this.startingPoint.y);
+          let p = new Point(other.startingPoint.x, this.startingPoint.y);
+          return new Intersection(p, this, other, this.startingPoint.manhattanDistance(p), other.startingPoint.manhattanDistance(p));
         }
       }
     }
@@ -67,7 +76,8 @@ class DirectionLength {
         let x = other.xRange().inRange(this.startingPoint.x);
         let y = this.yRange().inRange(other.startingPoint.y);
         if (x && y) {
-          return new Point(this.startingPoint.x, other.startingPoint.y);
+          let p = new Point(this.startingPoint.x, other.startingPoint.y);
+          return new Intersection(p, this, other, this.startingPoint.manhattanDistance(p), other.startingPoint.manhattanDistance(p));
         }
       }
     }
@@ -114,11 +124,10 @@ class Day3 implements Day<Wire[]> {
         let dl2 = o.paths[idx2];
         let isect = dl.intersection(dl2);
         if (isect) {
-          let distance = isect.manhattan();
+          let distance = isect.point.manhattan();
           if (distance < mDist) {
             mDist = distance;
           }
-          console.log(`Intersection at ${isect.x}, ${isect.y}`)
         }
       }
     }
@@ -126,7 +135,27 @@ class Day3 implements Day<Wire[]> {
   }
 
   part2(input: Wire[]): any {
-    return 0;
+    let w = input[0];
+    let o = input[1];
+    let mDist = 2147483647;
+    let travelledA = 0;
+    for (let idx in w.paths) {
+      let travelledB = 0;
+      let dl = w.paths[idx];
+      for (let idx2 in o.paths) {
+        let dl2 = o.paths[idx2];
+        let isect = dl.intersection(dl2);
+        if (isect) {
+          let distance = isect.stepA + isect.stepB + travelledA + travelledB;
+          if (distance < mDist) {
+            mDist = distance;
+          }
+        }
+        travelledB += dl2.length;
+      }
+      travelledA += dl.length;
+    }
+    return mDist;
   }
 }
 
