@@ -1,4 +1,5 @@
 import Day from "./Day";
+import IntCodeComputer from "./IntCodeComputer"
 
 class Day2 implements Day<number[]> {
 
@@ -26,24 +27,10 @@ class Day2 implements Day<number[]> {
   }
 
   runProgram(values: number[]) {
-    let i = 0;
-    while (values[i] != 99) {
-      let v = values[i];
-      let a = values[values[i + 1]];
-      let b = values[values[i + 2]];
-      let output = values[i + 3];
-      if (v === 1) {
-        values[output] = a + b;
-      } else if (v === 2) {
-        values[output] = a * b;
-      } else {
-        throw new Error("Kaputt at " + i);
-      }
-      i += 4;
-    }
+    let computer = new IntCodeComputer()
+    computer.runProgram(values);
     return values[0];
   }
-
 }
 
 export default Day2;

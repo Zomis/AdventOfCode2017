@@ -1,5 +1,6 @@
 const fs = require('fs');
 import Day from "./Day";
+import TestCase from "./TestCase";
 interface NewDay {
   new(): Day<any>
 }
@@ -17,6 +18,16 @@ for (var i = 25; i >= 1; i--) {
   }
 
   let d: Day<any> = new day();
+  let a = d as any;
+  if (a.testCases) {
+    let tests = a.testCases as Array<TestCase>
+    for (let testIndex in tests) {
+      let test = tests[testIndex];
+      let v = d.parse(test.text);
+      d.part1(v);
+      console.log(`Running test case ${testIndex} on Day${i} : ${v}`);
+    }
+  }
   let input = fs.readFileSync(`inputs/${i}`, 'utf8').trim();
   let parsed1 = d.parse(input);
   let result1 = d.part1(parsed1);
