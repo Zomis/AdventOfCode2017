@@ -10,12 +10,16 @@ class Day5 implements Day<number[]> {
 
   part1(input: number[]): any {
     let computer = new IntCodeComputer()
+    computer.input = 1;
     computer.runProgram(input);
     return computer.outputs[computer.outputs.length - 1];
   }
 
   part2(input: number[]): any {
-    return 0;
+    let computer = new IntCodeComputer()
+    computer.input = 5;
+    computer.runProgram(input);
+    return computer.outputs[computer.outputs.length - 1];
   }
 
   testCases: TestCase[] = [
