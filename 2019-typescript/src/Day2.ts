@@ -16,9 +16,10 @@ class Day2 implements Day<number[]> {
   part2(input: number[]) {
     for (let a = 0; a <= 99; a++) {
       for (let b = 0; b <= 99; b++) {
-        input[1] = a;
-        input[2] = b;
-        if (this.runProgram(input.slice()) === 19690720) {
+        let copy = input.slice()
+        copy[1] = a;
+        copy[2] = b;
+        if (this.runProgram(copy) === 19690720) {
           return 100 * a + b;
         }
       }
@@ -29,7 +30,7 @@ class Day2 implements Day<number[]> {
   runProgram(values: number[]) {
     let computer = new IntCodeComputer()
     computer.runProgram(values);
-    return values[0];
+    return computer.tape[0];
   }
 }
 

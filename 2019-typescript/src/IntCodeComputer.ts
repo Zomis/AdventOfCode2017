@@ -1,7 +1,10 @@
 class IntCodeComputer {
 
-  public input: number = 0;
+  public inputs: number[] = [];
   public outputs = new Array<number>();
+  public waitingForInput = false
+  public instructionIndex = 0
+  public tape: number[] = []
 
   readParameter(values: number[], index: number, mode: number) {
     let value = values[index];
@@ -28,6 +31,13 @@ class IntCodeComputer {
     return params;
   }
 
+  giveInput(value: number) {
+    this.inputs.push(value)
+    if (this.waitingForInput) {
+      this.run()
+    }
+  }
+
   performInstruction(values: number[], instructionIndex: number): number {
     let v = values[instructionIndex] % 100;
     let parameters: Array<number> = []
@@ -39,12 +49,15 @@ class IntCodeComputer {
       values[parameters[2]] = parameters[0] * parameters[1];
     } else if (v === 3) {
       let param = this.readParameter(values, instructionIndex + 1, 1);
-      values[param] = this.input;
-      console.log("Writing input at " + param);
+      this.waitingForInput = (this.inputs.length === 0)
+      if (this.inputs.length === 0) {
+        return instructionIndex
+      }
+      values[param] = this.inputs[0];
+      this.inputs.splice(0, 1)
       return instructionIndex + 2;
     } else if (v === 4) {
       let param = this.readParameter(values, instructionIndex + 1, 1);
-      console.log("Output at " + instructionIndex + ": " + param + " = " + values[param]);
       this.outputs.push(values[param]);
       return instructionIndex + 2;
     } else if (v === 5) {
@@ -63,6 +76,8 @@ class IntCodeComputer {
     } else if (v === 8) {
       parameters = this.readParameters(values, instructionIndex, 2, 1);
       values[parameters[2]] = parameters[0] === parameters[1] ? 1 : 0;
+    } else if (v === 99) {
+      return instructionIndex
     } else {
       throw new Error("Kaputt at " + instructionIndex + " with value " + v);
     }
@@ -70,11 +85,19 @@ class IntCodeComputer {
   }
 
   runProgram(values: number[]) {
-    let i = 0;
-    while (values[i] != 99) {
-      i = this.performInstruction(values, i);
+    this.instructionIndex = 0
+    this.tape = values.slice()
+    this.run()
+  }
+
+  run() {
+    while (true) {
+      let old = this.instructionIndex
+      this.instructionIndex = this.performInstruction(this.tape, this.instructionIndex)
+      if (old === this.instructionIndex) {
+        return
+      }
     }
-    return values[0];
   }
 
 }
