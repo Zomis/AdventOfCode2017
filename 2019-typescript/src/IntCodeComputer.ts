@@ -5,27 +5,61 @@ class IntCodeComputer {
   public waitingForInput = false
   public instructionIndex = 0
   public tape: number[] = []
+  relativeBase = 0
 
   readParameter(values: number[], index: number, mode: number) {
     let value = values[index];
     if (mode === 0) {
-      return values[value];
+      return this.readValue(values, value);
     } else if (mode === 1) {
       return value;
+    } else if (mode === 2) {
+      return this.readValue(values, value + this.relativeBase)
     }
     throw new Error("mode " + mode);
   }
 
-  readParameters(values: number[], instructionIndex: number, parameterCount: number, additional: number): Array<number> {
+  readWriteParameter(index: number, mode: number) {
+    let value = this.tape[index];
+    if (mode === 0) {
+      return value;
+    } else if (mode === 1) {
+      return value;
+    } else if (mode === 2) {
+      return value + this.relativeBase
+    }
+    throw new Error("mode " + mode);
+  }
+
+  readValue(values: number[], index: number) {
+    if (values.length <= index) {
+      return 0
+    }
+    return values[index]
+  }
+
+  writeValue(values: number[], index: number, value: number) {
+    if (index < 0) {
+      throw new Error("Cannot write to a negative index: " + index)
+    }
+    while (values.length < index) {
+      values.push(0)
+    }
+    values[index] = value
+  }
+
+  readParameters(values: number[], instructionIndex: number, reads: number, writes: number): Array<number> {
     let modes = values[instructionIndex] / 100;
     let params = new Array<number>();
-    for (let i = 0; i < parameterCount; i++) {
+    for (let i = 0; i < reads; i++) {
       let param = this.readParameter(values, instructionIndex + i + 1, Math.floor(modes % 10));
-      modes /= 10;
+      modes = Math.floor(modes / 10);
       params.push(param);
     }
-    for (let i = 0; i < additional; i++) {
-      let param = this.readParameter(values, instructionIndex + parameterCount + i + 1, 1);
+    for (let i = 0; i < writes; i++) {
+      let mode = Math.floor(modes % 10)
+      let param = this.readWriteParameter(instructionIndex + reads + i + 1, mode);
+      modes = Math.floor(modes / 10);
       params.push(param);
     }
     return params;
@@ -43,23 +77,23 @@ class IntCodeComputer {
     let parameters: Array<number> = []
     if (v === 1) {
       parameters = this.readParameters(values, instructionIndex, 2, 1);
-      values[parameters[2]] = parameters[0] + parameters[1];
+      this.writeValue(values, parameters[2], parameters[0] + parameters[1]);
     } else if (v === 2) {
       parameters = this.readParameters(values, instructionIndex, 2, 1);
-      values[parameters[2]] = parameters[0] * parameters[1];
+      this.writeValue(values, parameters[2], parameters[0] * parameters[1]);
     } else if (v === 3) {
-      let param = this.readParameter(values, instructionIndex + 1, 1);
+      parameters = this.readParameters(values, instructionIndex, 0, 1);
+
       this.waitingForInput = (this.inputs.length === 0)
       if (this.inputs.length === 0) {
         return instructionIndex
       }
-      values[param] = this.inputs[0];
+      this.writeValue(values, parameters[0], this.inputs[0]);
       this.inputs.splice(0, 1)
       return instructionIndex + 2;
     } else if (v === 4) {
-      let param = this.readParameter(values, instructionIndex + 1, 1);
-      this.outputs.push(values[param]);
-      return instructionIndex + 2;
+      parameters = this.readParameters(values, instructionIndex, 1, 0);
+      this.outputs.push(parameters[0]);
     } else if (v === 5) {
       parameters = this.readParameters(values, instructionIndex, 2, 0);
       if (parameters[0] !== 0) {
@@ -72,10 +106,13 @@ class IntCodeComputer {
       }
     } else if (v === 7) {
       parameters = this.readParameters(values, instructionIndex, 2, 1);
-      values[parameters[2]] = parameters[0] < parameters[1] ? 1 : 0;
+      this.writeValue(values, parameters[2], parameters[0] < parameters[1] ? 1 : 0);
     } else if (v === 8) {
       parameters = this.readParameters(values, instructionIndex, 2, 1);
-      values[parameters[2]] = parameters[0] === parameters[1] ? 1 : 0;
+      this.writeValue(values, parameters[2], parameters[0] === parameters[1] ? 1 : 0);
+    } else if (v === 9) {
+      parameters = this.readParameters(values, instructionIndex, 1, 0)
+      this.relativeBase += parameters[0]
     } else if (v === 99) {
       return instructionIndex
     } else {
