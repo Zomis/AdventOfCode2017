@@ -25,11 +25,15 @@ class Recipe {
   constructor(public inputs: Array<Item>, public result: Item) {}
 
   apply(have: Array<Item>, want: Item): Array<Item> {
+    if (this.result.name != want.name) {
+      throw new Error("Trying to apply the incorrect recipe to get " + want)
+    }
     let results = have.slice()
+    let times = Math.ceil(Math.abs(want.count) / this.result.count)
     this.inputs.forEach((i: Item) => {
-      modify(results, i.name, -i.count)
+      modify(results, i.name, -i.count * times)
     })
-    modify(results, this.result.name, this.result.count)
+    modify(results, this.result.name, this.result.count * times)
     return results
   }
 
@@ -75,26 +79,47 @@ class Day14 implements Day<Recipes> {
     return map
   }
 
-  part1(input: Recipes): any {
-    let have = new Array<Item>()
-    have.push(new Item(-1, "FUEL"))
-    let i = 0
+  resolveRequirements(recipes: Recipes, inventory: Array<Item>): Array<Item> {
+    let have = inventory.slice()
     while (have.some(itemIsMissing)) {
-      // console.log(`Have: ${have}`)
       let product = have.find(itemIsMissing)!!
-      let recipe: Recipe | undefined = input.findRecipeFor(product.name)
-      // console.log(`Using recipe: ${recipe} to get ${product}`)
+      let recipe: Recipe | undefined = recipes.findRecipeFor(product.name)
       if (recipe) {
         have = recipe.apply(have, product)
       } else {
         throw new Error("Cannot find recipe for " + product.name)
       }
     }
-    return have.find((i: Item) => i.name == "ORE")!!.count
+    return have
+  }
+
+  resourceCount(inventory: Array<Item>, name: string): number {
+    return inventory.find((i: Item) => i.name == name)!!.count
+  }
+
+  part1(input: Recipes): any {
+    let have = new Array<Item>()
+    have.push(new Item(-1, "FUEL"))
+    have = this.resolveRequirements(input, have)
+    return Math.abs(this.resourceCount(have, "ORE"))
   }
 
   part2(input: Recipes): any {
-    return 0;
+    let have = new Array<Item>()
+    let requiredForOne = this.part1(input) as number
+    have.push(new Item(1000000000000, "ORE"))
+    let totalFuelAdded = 0
+    while (this.resourceCount(have, "ORE") > 0) {
+      let moreFuel = Math.floor(this.resourceCount(have, "ORE") / requiredForOne)
+      if (moreFuel == 0) {
+        moreFuel = 1
+      }
+      totalFuelAdded += moreFuel
+
+      modify(have, "FUEL", -moreFuel)
+      have = this.resolveRequirements(input, have)
+    }
+    return totalFuelAdded - 1;// this.resourceCount(have, "FUEL");
   }
 
 }
