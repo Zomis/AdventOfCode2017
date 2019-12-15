@@ -30,6 +30,10 @@ class Map2D<T> {
     return results
   }
 
+  set(position: Point, value: T) {
+    this.map[position.y][position.x] = value
+  }
+
   walk(start: Point, delta: Point, end: Point, until: Function): Point {
     let current = start.clone()
     while (true) {
@@ -42,6 +46,34 @@ class Map2D<T> {
         return current
       }
     }
+  }
+
+  depthFirstSearch(position: Point, target: (v: T) => boolean, expandable: (v: T) => Array<Point>): Array<Point> {
+    return this.internalDepthFirstSearch(position, target, expandable, new Array<Point>(), new Array<Point>())!!
+  }
+
+  private internalDepthFirstSearch(position: Point, target: (v: T) => boolean, expandable: (v: T) => Array<Point>, visited: Array<Point>, path: Array<Point>): Array<Point> | undefined {
+    let options: Array<Point> = expandable(this.get(position.x, position.y))
+    visited.push(position)
+
+    for (let i = 0; i < options.length; i++) {
+      let opt: Point = options[i]
+      let next = position.plus(opt)
+      if (visited.find((p: Point) => p.x === next.x && p.y === next.y)) {
+        continue
+      }
+      let newPath = path.slice()
+      visited.push(next)
+      newPath.push(opt)
+      if (target(this.get(next.x, next.y))) {
+        return newPath
+      }
+      let subsearch = this.internalDepthFirstSearch(next, target, expandable, visited, newPath)
+      if (subsearch !== undefined) {
+        return subsearch
+      }
+    }
+    return undefined
   }
 }
 

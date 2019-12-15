@@ -137,6 +137,15 @@ class IntCodeComputer {
     }
   }
 
+  readOutput(): number {
+    if (this.outputs.length === 0) {
+      throw new Error("No outputs available");
+    }
+    let result = this.outputs[0]
+    this.outputs.splice(0, 1)
+    return result
+  }
+
 }
 
 export default IntCodeComputer;
