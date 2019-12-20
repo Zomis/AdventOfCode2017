@@ -14,6 +14,10 @@ class Map2D<T> {
     }
   }
 
+  inRange(x: number, y: number, range: number): boolean {
+    return x >= range && y >= range && x < this.width - range && y < this.height - range
+  }
+
   get(x: number, y: number): T {
     return this.map[y][x]
   }
