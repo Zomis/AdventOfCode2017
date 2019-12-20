@@ -3,7 +3,7 @@ import Point from "./Point"
 class Map2D<T> {
   public map: Array<Array<T>>
 
-  constructor(public width: number, public height: number, init: Function) {
+  constructor(public width: number, public height: number, init: (x: number, y: number) => T) {
     this.map = new Array<Array<T>>()
     for (let y = 0; y < height; y++) {
       let row = new Array<T>()
@@ -18,7 +18,7 @@ class Map2D<T> {
     return this.map[y][x]
   }
 
-  findPositions(condition: Function): Array<Point> {
+  findPositions(condition: (v: T, x: number, y: number) => boolean): Array<Point> {
     let results = new Array<Point>()
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
@@ -31,10 +31,23 @@ class Map2D<T> {
   }
 
   set(position: Point, value: T) {
+    if (this.height <= position.y || this.width <= position.x || position.x < 0 || position.y < 0) {
+      throw new Error("Out of bounds: " + position.toString())
+    }
     this.map[position.y][position.x] = value
   }
 
-  walk(start: Point, delta: Point, end: Point, until: Function): Point {
+  print(printFunction: (v: T, x: number, y: number) => string) {
+    for (let y = 0; y < this.height; y++) {
+      let line = ""
+      for (let x = 0; x < this.width; x++) {
+        line += printFunction(this.get(x, y), x, y)
+      }
+      console.log(line)
+    }
+  }
+
+  walk(start: Point, delta: Point, end: Point, until: (v: T, x: number, y: number) => boolean): Point {
     let current = start.clone()
     while (true) {
       current.x += delta.x
