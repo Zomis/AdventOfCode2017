@@ -122,6 +122,9 @@ class IntCodeComputer {
   }
 
   runProgram(values: number[]) {
+    if (values.length === 0) {
+      throw new Error("Unable to run empty program")
+    }
     this.instructionIndex = 0
     this.tape = values.slice()
     this.run()

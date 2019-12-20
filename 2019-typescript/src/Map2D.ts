@@ -19,7 +19,14 @@ class Map2D<T> {
   }
 
   get(x: number, y: number): T {
+    if (!this.inRange(x, y, 0)) {
+      throw new Error(`Position ${x}, ${y} is not in range of map ${this.width}, ${this.height}`)
+    }
     return this.map[y][x]
+  }
+
+  center(): Point {
+    return new Point(this.width / 2, this.height / 2)
   }
 
   findPositions(condition: (v: T, x: number, y: number) => boolean): Array<Point> {
