@@ -55,6 +55,11 @@ class DayImpl<T>(override val day: Int, val implementation: Day<T>.() -> Unit): 
 }
 object Days {
 
+    fun <T> day(owner: Any, function: Day<T>.() -> Unit): Day<T> {
+        val number = owner::class.simpleName!!.substring(3).toInt()
+        return DayImpl(number, function)
+    }
+
     fun <T> day(number: Int, function: Day<T>.() -> Unit): Day<T> {
         return DayImpl(number, function)
     }
