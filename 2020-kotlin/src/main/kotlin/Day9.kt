@@ -18,7 +18,6 @@ object Day9 {
                     val endNumber = input[endIndex]
                     sum += endNumber
                     if (sum == search) {
-                        println("$startNumber $endNumber")
                         return@part2 startNumber + endNumber
                     }
                     if (sum > search) {
