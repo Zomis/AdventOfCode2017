@@ -47,14 +47,14 @@ object Day11 {
             return next
         }
 
-        private fun theta(degrees: Int): Double {
-            return degrees * PI / 180
-        }
         fun rotate(degrees: Int): Point {
-            val theta = theta(degrees)
-            val newX = x * cos(theta) - y * sin(theta)
-            val newY = x * sin(theta) + y * cos(theta)
-            return Point(newX.toLong(), newY.toLong())
+            return when (degrees) {
+                0 -> this
+                90, -270 -> Point(-y, x)
+                -180, 180 -> Point(-x, -y)
+                -90, 270 -> Point(y, -x)
+                else -> throw IllegalArgumentException("$degrees")
+            }
         }
 
         operator fun minus(other: Point): Point = Point(this.x - other.x, this.y - other.y)
