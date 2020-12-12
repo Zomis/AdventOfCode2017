@@ -88,7 +88,7 @@ object Days {
 
 fun main() {
     val days = listOf(
-        Day11.day
+        Day12.day
     )
     Days.run(days)
 }

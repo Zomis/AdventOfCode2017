@@ -1,5 +1,10 @@
 package net.zomis.aoc.y2020
 
+import kotlin.math.PI
+import kotlin.math.absoluteValue
+import kotlin.math.cos
+import kotlin.math.sin
+
 typealias Day11CountCheck = (previous: Day11.Map2D<Char>, x: Int, y: Int) -> Int
 typealias Day11ChangeRules = (current: Boolean, count: Int) -> Boolean
 object Day11 {
@@ -29,10 +34,10 @@ object Day11 {
         }
 
         fun all(): Sequence<T> = map.asSequence().flatMap { it.asSequence() }
-        fun inRange(pos: Point): Boolean = inRange(pos.x, pos.y)
-        fun get(pos: Point): T = get(pos.x, pos.y)
+        fun inRange(pos: Point): Boolean = inRange(pos.x.toInt(), pos.y.toInt())
+        fun get(pos: Point): T = get(pos.x.toInt(), pos.y.toInt())
     }
-    data class Point(val x: Int, val y: Int) {
+    data class Point(val x: Long, val y: Long) {
         operator fun plus(other: Point): Point = Point(this.x + other.x, this.y + other.y)
         fun repeatUntil(function: (Point) -> Boolean): Point {
             var next = this
@@ -41,6 +46,21 @@ object Day11 {
             }
             return next
         }
+
+        private fun theta(degrees: Int): Double {
+            return degrees * PI / 180
+        }
+        fun rotate(degrees: Int): Point {
+            val theta = theta(degrees)
+            val newX = x * cos(theta) - y * sin(theta)
+            val newY = x * sin(theta) + y * cos(theta)
+            return Point(newX.toLong(), newY.toLong())
+        }
+
+        operator fun minus(other: Point): Point = Point(this.x - other.x, this.y - other.y)
+        operator fun times(value: Int): Point = Point(this.x * value, this.y * value)
+
+        val manhattanDistance = this.x.absoluteValue + this.y.absoluteValue
     }
 
     object Directions {
@@ -58,9 +78,9 @@ object Day11 {
         part1 {
             val countCheck: Day11CountCheck = {previous, x, y ->
                 Directions.eightDirections
-                    .map { it + Point(x, y) }
-                    .filter { previous.inRange(it.x, it.y) }
-                    .count { previous.get(it.x, it.y) == '#' }
+                    .map { it + Point(x.toLong(), y.toLong()) }
+                    .filter { previous.inRange(it) }
+                    .count { previous.get(it) == '#' }
             }
             val rules: Day11ChangeRules = {current, count ->
                 var nextValue = current
@@ -76,12 +96,12 @@ object Day11 {
         }
         part2 {
             val countCheck: Day11CountCheck = {previous, x, y ->
-                val pos = Point(x, y)
+                val pos = Point(x.toLong(), y.toLong())
                 val list = Directions.eightDirections
                     .map { direction ->
                         direction.repeatUntil { !previous.inRange(it + pos) || previous.get(it + pos) != '.' }
                     }.map { it + pos }
-                list.filter { previous.inRange(it.x, it.y) }.count { previous.get(it.x, it.y) == '#' }
+                list.filter { previous.inRange(it) }.count { previous.get(it) == '#' }
             }
             val rules: Day11ChangeRules = {current, count ->
                 var nextValue = current
