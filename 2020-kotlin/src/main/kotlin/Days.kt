@@ -1,5 +1,8 @@
 package net.zomis.aoc.y2020
 
+import java.util.concurrent.TimeUnit
+import kotlin.time.measureTime
+
 typealias DayPart<T> = Inputs<T>.() -> Any
 typealias InputMapping<T> = Sequence<String>.() -> T
 interface Inputs<T> {
@@ -79,7 +82,10 @@ object Days {
             // TODO: Two coroutines that depend on a mapped input coroutine
             val part1result = day.runPart1(mappedInput)
             println(part1result)
+            val time = System.nanoTime()
             val part2result = day.runPart2(mappedInput)
+            val time2 = System.nanoTime()
+            println("Speed part 2: MICRO seconds " + TimeUnit.NANOSECONDS.toMicros(time2-time))
             println(part2result)
         }
     }
@@ -88,7 +94,7 @@ object Days {
 
 fun main() {
     val days = listOf(
-        Day14.day
+        Day15.day
     )
     Days.run(days)
 }
